@@ -37,7 +37,7 @@ Error:
 
 ### A. Register Flow
 1. `POST /auth/otp/send`
-2. Read OTP (in dev from server log / in prod from SMS/email provider)
+2. Read OTP (in dev from server log / via email if `OTP_DELIVERY=email`)
 3. `POST /auth/register`
 4. Save `accessToken` + `refreshToken`
 
@@ -73,9 +73,7 @@ Error:
 - `PATCH /profiles/me/family` (auth required)
 - `PATCH /profiles/me/partner-preferences` (auth required)
 - `PATCH /profiles/me/privacy` (auth required)
-- `POST /profiles/me/photos/upload-url` (auth required)
-- `POST /profiles/me/photos/upload-local` (auth required, local folder mode)
-- `POST /profiles/me/photos/confirm` (auth required)
+ - `POST /profiles/me/photos/upload-local` (auth required)
 - `GET /profiles/me/photos` (auth required)
 - `PATCH /profiles/me/photos/:photoId/primary` (auth required)
 - `DELETE /profiles/me/photos/:photoId` (auth required)
@@ -84,6 +82,12 @@ Error:
 ## Discovery / Feed
 - `GET /discovery/profiles`
 - `GET /discovery/filters/meta`
+
+## Private Access (Photo Unlock)
+- `POST /private-access/requests`
+- `GET /private-access/requests/incoming`
+- `GET /private-access/requests/sent`
+- `PATCH /private-access/requests/:requestId`
 
 ## 5) Key Request Payloads
 
@@ -99,7 +103,7 @@ Error:
 `POST /auth/register`
 ```json
 {
-  "mobile": "9979646602",
+  "mobileOrEmail": "9979646602",
   "password": "Password@123",
   "otp": "217106"
 }
@@ -111,6 +115,15 @@ Error:
 {
   "identifier": "9979646602",
   "password": "Password@123"
+}
+```
+
+### Login OTP
+`POST /auth/login/otp`
+```json
+{
+  "mobileOrEmail": "9979646602",
+  "otp": "217106"
 }
 ```
 
@@ -130,6 +143,35 @@ Error:
   "country": "India",
   "about_me": "Devout follower",
   "income_range": "15L-20L"
+}
+```
+
+### Upload Local Photo
+`POST /profiles/me/photos/upload-local`
+```json
+{
+  "fileName": "profile_1.png",
+  "contentType": "image/png",
+  "fileBase64": "<base64-image-content>",
+  "visibility": "locked",
+  "is_primary": true
+}
+```
+
+### Request Photo Access
+`POST /private-access/requests`
+```json
+{
+  "profileId": "<target_profile_uuid>",
+  "message": "I would like to request access to your photos."
+}
+```
+
+### Approve/Reject Request
+`PATCH /private-access/requests/:requestId`
+```json
+{
+  "action": "approve"
 }
 ```
 
@@ -202,15 +244,17 @@ class ApiClient {
 - `loginWithPassword(String identifier, String password)`
 - `getMyProfile()`
 - `updateBasicProfile(Map<String, dynamic> payload)`
-- `createPhotoUploadUrl(String fileName, String contentType)`
-- `uploadLocalPhoto(Map<String, dynamic> payload)`
-- `confirmPhotoUpload(Map<String, dynamic> payload)`
+ - `uploadLocalPhoto(Map<String, dynamic> payload)`
 - `getMyPhotos()`
 - `setPrimaryPhoto(String photoId)`
 - `deletePhoto(String photoId)`
 - `getDiscoveryProfiles(Map<String, dynamic> query)`
 - `getFilterMeta()`
 - `getProfileById(String profileId)`
+- `sendPhotoAccessRequest(String profileId, String message)`
+- `getIncomingPhotoRequests()`
+- `getSentPhotoRequests()`
+- `updatePhotoRequest(String requestId, String action)`
 
 ## 9) Status Codes to Handle
 

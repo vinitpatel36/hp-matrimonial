@@ -3,8 +3,6 @@ import { asyncHandler } from "../middleware/asyncHandler.js";
 import { optionalAuth, requireAuth } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
 import {
-  confirmPhotoUpload,
-  createPhotoUploadLink,
   deleteMyPhoto,
   getMe,
   getProfileById,
@@ -19,9 +17,7 @@ import {
   updateSpiritual,
 } from "../controllers/profile.controller.js";
 import {
-  confirmPhotoUploadSchema,
   localPhotoUploadSchema,
-  photoUploadUrlSchema,
   updateBasicSchema,
   updateEducationCareerSchema,
   updateFamilySchema,
@@ -49,9 +45,7 @@ profileRouter.patch(
   asyncHandler(updatePartnerPreferences)
 );
 profileRouter.patch("/me/privacy", requireAuth, validate(updatePrivacySchema), asyncHandler(updatePrivacy));
-profileRouter.post("/me/photos/upload-url", requireAuth, validate(photoUploadUrlSchema), asyncHandler(createPhotoUploadLink));
 profileRouter.post("/me/photos/upload-local", requireAuth, validate(localPhotoUploadSchema), asyncHandler(uploadLocalPhoto));
-profileRouter.post("/me/photos/confirm", requireAuth, validate(confirmPhotoUploadSchema), asyncHandler(confirmPhotoUpload));
 profileRouter.get("/me/photos", requireAuth, asyncHandler(listMyPhotos));
 profileRouter.delete("/me/photos/:photoId", requireAuth, asyncHandler(deleteMyPhoto));
 profileRouter.patch("/me/photos/:photoId/primary", requireAuth, asyncHandler(setPrimaryPhoto));

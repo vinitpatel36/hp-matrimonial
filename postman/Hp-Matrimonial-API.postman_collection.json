@@ -84,7 +84,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"mobileOrEmail\": \"9876543210\"\n}"
+              "raw": "{\n  \"mobileOrEmail\": \"9979646602\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/otp/send",
@@ -114,7 +114,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"mobileOrEmail\": \"9876543210\",\n  \"otp\": \"123456\"\n}"
+              "raw": "{\n  \"mobileOrEmail\": \"9979646602\",\n  \"otp\": \"217106\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/otp/verify",
@@ -157,7 +157,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"mobile\": \"9876543210\",\n  \"password\": \"Password@123\",\n  \"otp\": \"123456\"\n}"
+              "raw": "{\n  \"mobileOrEmail\": \"9979646602\",\n  \"password\": \"Password@123\",\n  \"otp\": \"217106\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/register",
@@ -580,41 +580,6 @@
           "response": []
         },
         {
-          "name": "Create Photo Upload URL",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"fileName\": \"profile_1.jpg\",\n  \"contentType\": \"image/jpeg\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/profiles/me/photos/upload-url",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "profiles",
-                "me",
-                "photos",
-                "upload-url"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
           "name": "Upload Local Photo",
           "request": {
             "method": "POST",
@@ -644,41 +609,6 @@
                 "me",
                 "photos",
                 "upload-local"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Confirm Photo Upload",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"storage_key\": \"profiles/<userId>/sample.jpg\",\n  \"file_url\": \"http://localhost:9000/hp-matrimonial/profiles/<userId>/sample.jpg\",\n  \"visibility\": \"locked\",\n  \"is_primary\": true\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/profiles/me/photos/confirm",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "profiles",
-                "me",
-                "photos",
-                "confirm"
               ]
             }
           },
@@ -911,6 +841,130 @@
         }
       ],
       "response": []
+    },
+    {
+      "name": "Private Access",
+      "item": [
+        {
+          "name": "Send Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"profileId\": \"{{profileUuid}}\",\n  \"message\": \"I would like to request access to your photos.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/private-access/requests",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "private-access",
+                "requests"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Incoming Requests",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/private-access/requests/incoming",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "private-access",
+                "requests",
+                "incoming"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Sent Requests",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/private-access/requests/sent",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "private-access",
+                "requests",
+                "sent"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Approve/Reject",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"approve\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/private-access/requests/{{requestId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "private-access",
+                "requests",
+                "{{requestId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "variable": [
@@ -932,6 +986,14 @@
     },
     {
       "key": "photoId",
+      "value": ""
+    },
+    {
+      "key": "profileUuid",
+      "value": ""
+    },
+    {
+      "key": "requestId",
       "value": ""
     }
   ]

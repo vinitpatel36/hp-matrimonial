@@ -4,6 +4,7 @@ import { compareValue, hashValue } from "../utils/crypto.js";
 import { generateOtp } from "../utils/otp.js";
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from "../utils/jwt.js";
 import { ensureUserProfileBundle } from "../services/profileBootstrap.service.js";
+import { sendOtp as sendOtpEmail } from "../services/otpDelivery.service.js";
 
 const otpExpiryMinutes = Number(process.env.OTP_EXPIRES_MINUTES || 10);
 
@@ -50,8 +51,17 @@ export const sendOtp = async (req, res) => {
     [mobileOrEmail, otpHash, otpExpiryMinutes.toString()]
   );
 
-  // Dev mode visibility for integration.
-  console.log(`OTP for ${mobileOrEmail}: ${otp}`);
+  const delivery = (process.env.OTP_DELIVERY || "console").toLowerCase();
+  if (delivery === "email") {
+    const result = await sendOtpEmail({ to: mobileOrEmail, otp });
+    if (!result?.ok) {
+      throw new HttpError(500, "OTP email not sent", result?.error || "Unknown email error");
+    }
+    console.log(`OTP email sent to ${mobileOrEmail}. messageId=${result.messageId || "n/a"}`);
+  } else {
+    // Dev mode visibility for integration.
+    console.log(`OTP for ${mobileOrEmail}: ${otp}`);
+  }
 
   return res.json({
     success: true,
@@ -67,8 +77,14 @@ export const verifyOtp = async (req, res) => {
 };
 
 export const register = async (req, res) => {
-  const { mobile, email, password, otp } = req.body;
-  const identifier = mobile || email;
+  const { mobile, email, mobileOrEmail, password, otp } = req.body;
+  let resolvedMobile = mobile || null;
+  let resolvedEmail = email || null;
+  if (!resolvedMobile && !resolvedEmail && mobileOrEmail) {
+    if (/^[0-9]{10,15}$/.test(mobileOrEmail)) resolvedMobile = mobileOrEmail;
+    else resolvedEmail = mobileOrEmail;
+  }
+  const identifier = resolvedMobile || resolvedEmail;
   await verifyOtpRecord({ mobileOrEmail: identifier, otp });
 
   const existing = await findUserByIdentifier(identifier);
@@ -81,7 +97,7 @@ export const register = async (req, res) => {
       VALUES ($1, $2, $3, true, true)
       RETURNING id, mobile, email, created_at
     `,
-    [mobile || null, email || null, passwordHash]
+    [resolvedMobile, resolvedEmail, passwordHash]
   );
 
   const user = rows[0];

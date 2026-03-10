@@ -15,10 +15,18 @@ export const registerSchema = z
   .object({
     mobile: z.string().regex(mobileRegex).optional(),
     email: z.string().email().optional(),
+    mobileOrEmail: z.string().min(5).max(100).optional(),
     password: z.string().min(8).max(100),
     otp: z.string().length(6),
   })
-  .refine((v) => v.mobile || v.email, "Provide mobile or email");
+  .refine((v) => v.mobile || v.email || v.mobileOrEmail, "Provide mobile or email")
+  .refine(
+    (v) => {
+      if (!v.mobileOrEmail) return true;
+      return mobileRegex.test(v.mobileOrEmail) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.mobileOrEmail);
+    },
+    "mobileOrEmail must be a valid mobile number or email"
+  );
 
 export const loginPasswordSchema = z.object({
   identifier: z.string().min(5).max(100),
@@ -38,4 +46,3 @@ export const changePasswordSchema = z.object({
   oldPassword: z.string().min(8).max(100),
   newPassword: z.string().min(8).max(100),
 });
-

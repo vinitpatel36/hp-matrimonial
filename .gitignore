@@ -2,7 +2,6 @@
 node_modules/
 
 # Environment files
-.env
 .env.*
 !.env.example
 
@@ -23,8 +22,6 @@ dist/
 build/
 coverage/
 
-# Local uploads (image storage)
-uploads/
 
 # OS files
 .DS_Store

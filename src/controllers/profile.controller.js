@@ -2,8 +2,8 @@ import { query } from "../config/db.js";
 import { HttpError } from "../utils/httpError.js";
 import { buildUpdateSet } from "../utils/sql.js";
 import { ensureUserProfileBundle } from "../services/profileBootstrap.service.js";
-import { createPhotoUploadUrl, deletePhotoObject, saveLocalPhoto } from "../services/storage.service.js";
-import { storageConfig } from "../config/storage.js";
+import { deletePhotoObject, saveLocalPhoto } from "../services/storage.service.js";
+import { getStorageConfig } from "../config/storage.js";
 
 const recalcCompleteness = async (userId) => {
   const { rows } = await query(
@@ -229,38 +229,8 @@ const syncPrimaryPhotoToProfile = async (userId) => {
   ]);
 };
 
-export const createPhotoUploadLink = async (req, res) => {
-  await ensureUserProfileBundle(req.user.userId);
-  const { fileName, contentType } = req.body;
-  const data = await createPhotoUploadUrl({
-    userId: req.user.userId,
-    fileName,
-    contentType,
-  });
-  return res.json({ success: true, message: "Upload URL generated", data });
-};
-
-export const confirmPhotoUpload = async (req, res) => {
-  await ensureUserProfileBundle(req.user.userId);
-  const { storage_key, file_url, visibility, is_primary } = req.body;
-  if (is_primary) {
-    await query("UPDATE profile_photos SET is_primary = false WHERE user_id = $1", [req.user.userId]);
-  }
-  const { rows } = await query(
-    `
-      INSERT INTO profile_photos (user_id, storage_key, file_url, visibility, is_primary)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING *
-    `,
-    [req.user.userId, storage_key, file_url, visibility, is_primary]
-  );
-  if (is_primary) {
-    await syncPrimaryPhotoToProfile(req.user.userId);
-  }
-  return res.status(201).json({ success: true, message: "Photo metadata saved", data: rows[0] });
-};
-
 export const uploadLocalPhoto = async (req, res) => {
+  const storageConfig = getStorageConfig();
   if (storageConfig.provider !== "local") {
     throw new HttpError(400, "Local upload endpoint is available only when STORAGE_PROVIDER=local");
   }

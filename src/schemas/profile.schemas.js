@@ -58,20 +58,6 @@ export const updatePrivacySchema = z.object({
   family_locked: z.boolean().optional(),
 });
 
-export const photoUploadUrlSchema = z.object({
-  fileName: z.string().min(3).max(200),
-  contentType: z
-    .string()
-    .regex(/^image\/(jpeg|jpg|png|webp)$/i, "Only jpeg/jpg/png/webp images are allowed"),
-});
-
-export const confirmPhotoUploadSchema = z.object({
-  storage_key: z.string().min(5),
-  file_url: z.string().url(),
-  visibility: z.enum(["public", "locked"]).default("locked"),
-  is_primary: z.boolean().default(false),
-});
-
 export const localPhotoUploadSchema = z.object({
   fileName: z.string().min(3).max(200),
   contentType: z

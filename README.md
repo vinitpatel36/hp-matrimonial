@@ -6,7 +6,7 @@ Node.js + PostgreSQL backend scaffold for approved **Phase 1 + Phase 2** scope:
 - Profile section APIs
 - Discovery/search/filter APIs
 - App bootstrap/home content APIs
-- Local folder photo upload APIs (`uploads/`) + optional MinIO mode
+- Local folder photo upload APIs (`uploads/`)
 
 ## 1) Setup
 
@@ -46,19 +46,8 @@ STORAGE_PUBLIC_BASE_URL=http://localhost:4000
 Use API:
 - `POST /profiles/me/photos/upload-local`
 
-## MinIO (Optional) Quick Setup
-
-1. Run MinIO:
-```bash
-docker run -p 9000:9000 -p 9001:9001 ^
-  -e MINIO_ROOT_USER=minioadmin ^
-  -e MINIO_ROOT_PASSWORD=minioadmin ^
-  -v minio_data:/data ^
-  quay.io/minio/minio server /data --console-address ":9001"
-```
-
-2. Open `http://localhost:9001` and create bucket `hp-matrimonial`.
-3. Ensure storage variables in `.env` are set.
+## Local Upload (Default)
+Use `POST /profiles/me/photos/upload-local` with base64 image payload.
 
 ## 2) Core Endpoints
 
@@ -80,8 +69,6 @@ docker run -p 9000:9000 -p 9001:9001 ^
 - `PATCH /profiles/me/family`
 - `PATCH /profiles/me/partner-preferences`
 - `PATCH /profiles/me/privacy`
-- `POST /profiles/me/photos/upload-url`
-- `POST /profiles/me/photos/confirm`
 - `GET /profiles/me/photos`
 - `PATCH /profiles/me/photos/:photoId/primary`
 - `DELETE /profiles/me/photos/:photoId`
@@ -96,7 +83,7 @@ docker run -p 9000:9000 -p 9001:9001 ^
 - `GET /app/home`
 
 ## 3) Notes
-- OTP is logged to server console for development.
+- OTP is logged to server console by default. To send OTP via email, set `OTP_DELIVERY=email` and SMTP configs in `.env`.
 - Photo/family privacy is enforced server-side in profile/discovery responses.
 - This implementation does not yet include connections, shortlist, chat, notifications, or membership renewal flows (planned for next phase).
 - For complete image architecture and Flutter usage flow, see `docs/IMAGE_STORAGE_AND_UPLOAD_FLOW.md`.
